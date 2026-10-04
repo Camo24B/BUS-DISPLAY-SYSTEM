@@ -1,4 +1,9 @@
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
+
+
+// ===============================
+// BUTTON SOUND
+// ===============================
 
 const buttonSound = new Audio('musheran-beep-313342.mp3');
 
@@ -6,8 +11,13 @@ buttonSound.volume = 0.5;
 
 function playButtonSound(){
   buttonSound.currentTime = 0;
-  buttonSound.play().catch(()=>{});
+  buttonSound.play().catch(() => {});
 }
+
+
+// ===============================
+// DEFAULT DESTINATION CODES
+// ===============================
 
 const defaults = {
 
@@ -58,7 +68,7 @@ const defaults = {
     dest: 'TRAVEL SAFE',
     via: ''
   },
-  
+
   '522': {
     route: '',
     dest: 'Safety Zone',
@@ -69,164 +79,460 @@ const defaults = {
     route: '',
     dest: 'Police Operation',
     via: ''
-  },
-
+  }
 
 };
 
-let custom={};
-try{
-  custom=JSON.parse(localStorage.getItem('busDestCodes')||'{}')
-}catch(e){
-  custom={}
+
+// ===============================
+// LOAD CUSTOM DESTINATIONS
+// ===============================
+
+let custom = {};
+
+try {
+
+  custom = JSON.parse(
+    localStorage.getItem('busDestCodes') || '{}'
+  );
+
+} catch(e) {
+
+  custom = {};
+
 }
 
-let entered='';
+
+let entered = '';
+
+
+// ===============================
+// DISPLAY ENTERED CODE
+// ===============================
 
 function showCode(){
-  $('codeValue').textContent=entered.padEnd(3,'-');
+
+  $('codeValue').textContent =
+    entered.padEnd(3, '-');
+
 }
 
-function updateBoard(code,route,dest,via=''){
-  const text=(dest+(via?' VIA '+via:'' )).toUpperCase();
 
-  ['f','s','r'].forEach(p=>{
-    $(p+'Route').textContent=route.toUpperCase();
-    $(p+'Dest').textContent=text;
+// ===============================
+// UPDATE DESTINATION BOARD
+// ===============================
+
+function updateBoard(code, route, dest, via = ''){
+
+  const text =
+    (dest + (via ? ' VIA ' + via : ''))
+    .toUpperCase();
+
+  ['f', 's', 'r'].forEach(p => {
+
+    $(p + 'Route').textContent =
+      route.toUpperCase();
+
+    $(p + 'Dest').textContent =
+      text;
+
   });
 
-  $('activeCode').textContent='CODE '+code;
-  $('status').textContent='Destination loaded · '+route+' '+dest;
-  $('feedback').textContent='Loaded code '+code+'. Enter another code to change destination.';
+  $('activeCode').textContent =
+    'CODE ' + code;
+
+  $('status').textContent =
+    'Destination loaded · ' +
+    route + ' ' +
+    dest;
+
+  $('feedback').textContent =
+    'Loaded code ' + code +
+    '. Enter another code to change destination.';
+
 }
+
+
+// ===============================
+// ENTER DESTINATION CODE
+// ===============================
 
 function enterCode(){
-  if(entered.length!==3){
-    $('feedback').textContent='Enter a 3-digit destination code first.';
+
+  if(entered.length !== 3){
+
+    $('feedback').textContent =
+      'Enter a 3-digit destination code first.';
+
     return;
   }
 
-  const item=custom[entered]||defaults[entered];
+  const item =
+    custom[entered] ||
+    defaults[entered];
 
   if(!item){
-    $('feedback').textContent='Code not found. Add it under “Manage destination codes”.';
+
+    $('feedback').textContent =
+      'Code not found. Add it under “Manage destination codes”.';
+
     return;
   }
 
-  updateBoard(entered,item.route,item.dest,item.via||'');
+  updateBoard(
+    entered,
+    item.route,
+    item.dest,
+    item.via || ''
+  );
+
 }
 
-document.querySelectorAll('[data-key]').forEach(btn =>
+
+// ===============================
+// NUMBER KEYPAD
+// ===============================
+
+document.querySelectorAll('[data-key]').forEach(btn => {
+
   btn.addEventListener('click', () => {
 
     playButtonSound();
 
     if(entered.length < 3){
+
       entered += btn.dataset.key;
+
       showCode();
+
     }
 
-  })
-);
+  });
 
-$('clear').addEventListener('click',()=>{
-  entered='';
-  showCode();
-  $('feedback').textContent='Code cleared.';
 });
 
-$('back').addEventListener('click',()=>{
-  entered=entered.slice(0,-1);
+
+// ===============================
+// CLEAR BUTTON
+// ===============================
+
+$('clear').addEventListener('click', () => {
+
+  playButtonSound();
+
+  entered = '';
+
   showCode();
+
+  $('feedback').textContent =
+    'Code cleared.';
+
 });
 
-$('enter').addEventListener('click',enterCode);
 
-document.addEventListener('keydown',e=>{
-  if(/^\d$/.test(e.key)&&entered.length<3){
-    entered+=e.key;
+// ===============================
+// BACKSPACE BUTTON
+// ===============================
+
+$('back').addEventListener('click', () => {
+
+  playButtonSound();
+
+  entered =
+    entered.slice(0, -1);
+
+  showCode();
+
+});
+
+
+// ===============================
+// ENTER BUTTON
+// ===============================
+
+$('enter').addEventListener('click', () => {
+
+  playButtonSound();
+
+  enterCode();
+
+});
+
+
+// ===============================
+// COMPUTER KEYBOARD
+// ===============================
+
+document.addEventListener('keydown', e => {
+
+  if(/^\d$/.test(e.key) && entered.length < 3){
+
+    entered += e.key;
+
     showCode();
+
   }
-  else if(e.key==='Backspace'){
-    entered=entered.slice(0,-1);
+
+  else if(e.key === 'Backspace'){
+
+    entered =
+      entered.slice(0, -1);
+
     showCode();
+
   }
-  else if(e.key==='Enter'){
+
+  else if(e.key === 'Enter'){
+
     enterCode();
+
   }
+
 });
+
+
+// ===============================
+// DISPLAY DESTINATION LIST
+// ===============================
 
 function renderCodes(){
 
-  const list=$('codeList');
-  list.innerHTML='';
+  const list = $('codeList');
 
-  Object.entries({...defaults,...custom})
-    .sort(([a],[b])=>a.localeCompare(b))
-    .forEach(([code,item])=>{
+  list.innerHTML = '';
 
-      const row=document.createElement('div');
-      row.className='code-item';
 
-      const name=document.createElement('span');
+  Object.entries({
+    ...defaults,
+    ...custom
+  })
 
-      name.textContent=
-        code+' · '+item.route+' — '+item.dest+
-        (item.via?' via '+item.via:'');
+  .sort(([a], [b]) =>
+    a.localeCompare(b)
+  )
 
-      row.appendChild(name);
+  .forEach(([code, item]) => {
 
-      if(custom[code]){
-        const del=document.createElement('button');
-        del.textContent='DELETE';
+    const row =
+      document.createElement('div');
 
-        del.addEventListener('click',()=>{
-          delete custom[code];
-          localStorage.setItem(
-            'busDestCodes',
-            JSON.stringify(custom)
-          );
-          renderCodes();
+    row.className =
+      'code-item';
+
+
+    // Destination name
+
+    const name =
+      document.createElement('span');
+
+    name.textContent =
+      code +
+      ' · ' +
+      item.route +
+      ' — ' +
+      item.dest +
+      (item.via
+        ? ' via ' + item.via
+        : '');
+
+    row.appendChild(name);
+
+
+    // ===========================
+    // CUSTOM DESTINATION BUTTONS
+    // ===========================
+
+    if(custom[code]){
+
+
+      // EDIT BUTTON
+
+      const edit =
+        document.createElement('button');
+
+      edit.textContent =
+        'EDIT';
+
+
+      edit.addEventListener('click', () => {
+
+        playButtonSound();
+
+
+        // Load destination into form
+
+        $('newCode').value =
+          code;
+
+        $('newRoute').value =
+          item.route;
+
+        $('newDest').value =
+          item.dest;
+
+        $('newVia').value =
+          item.via || '';
+
+
+        $('feedback').textContent =
+          'Editing code ' +
+          code +
+          '. Change the details and press SAVE.';
+
+
+        // Scroll to form
+
+        $('newCode').scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
 
-        row.appendChild(del);
-      }
+      });
 
-      list.appendChild(row);
-    });
+
+      row.appendChild(edit);
+
+
+      // =========================
+      // DELETE BUTTON
+      // =========================
+
+      const del =
+        document.createElement('button');
+
+      del.textContent =
+        'DELETE';
+
+
+      del.addEventListener('click', () => {
+
+        playButtonSound();
+
+
+        delete custom[code];
+
+
+        localStorage.setItem(
+          'busDestCodes',
+          JSON.stringify(custom)
+        );
+
+
+        renderCodes();
+
+
+        $('feedback').textContent =
+          'Deleted destination code ' +
+          code +
+          '.';
+
+      });
+
+
+      row.appendChild(del);
+
+    }
+
+
+    list.appendChild(row);
+
+  });
+
 }
 
-$('save').addEventListener('click',()=>{
 
-  const code=$('newCode').value.trim();
-  const route=$('newRoute').value.trim();
-  const dest=$('newDest').value.trim();
-  const via=$('newVia').value.trim();
+// ===============================
+// SAVE / ADD DESTINATION
+// ===============================
 
-  if(!/^\d{3}$/.test(code)||!route||!dest){
-    $('feedback').textContent=
+$('save').addEventListener('click', () => {
+
+  playButtonSound();
+
+
+  const code =
+    $('newCode').value.trim();
+
+  const route =
+    $('newRoute').value.trim();
+
+  const dest =
+    $('newDest').value.trim();
+
+  const via =
+    $('newVia').value.trim();
+
+
+  // Validate
+
+  if(
+    !/^\d{3}$/.test(code) ||
+    !route ||
+    !dest
+  ){
+
+    $('feedback').textContent =
       'Enter a 3-digit code, route number and destination.';
+
     return;
+
   }
 
-  custom[code]={route,dest,via};
+
+  // Save custom destination
+
+  custom[code] = {
+    route,
+    dest,
+    via
+  };
+
+
+  // Save to browser storage
 
   localStorage.setItem(
     'busDestCodes',
     JSON.stringify(custom)
   );
 
-  entered=code;
+
+  // Load destination
+
+  entered = code;
+
   showCode();
 
-  updateBoard(code,route,dest,via);
+
+  updateBoard(
+    code,
+    route,
+    dest,
+    via
+  );
+
+
+  // Refresh list
+
   renderCodes();
 
-  $('newCode').value='';
-  $('newRoute').value='';
-  $('newDest').value='';
-  $('newVia').value='';
+
+  // Clear form
+
+  $('newCode').value = '';
+
+  $('newRoute').value = '';
+
+  $('newDest').value = '';
+
+  $('newVia').value = '';
+
 });
 
+
+// ===============================
+// START
+// ===============================
+
 showCode();
+
 renderCodes();
