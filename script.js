@@ -1,5 +1,14 @@
 const $=id=>document.getElementById(id);
 
+const buttonSound = new Audio('musheran-beep-313342.mp3');
+
+buttonSound.volume = 0.5;
+
+function playButtonSound(){
+  buttonSound.currentTime = 0;
+  buttonSound.play().catch(()=>{});
+}
+
 const defaults = {
 
   '001': {
@@ -107,12 +116,16 @@ function enterCode(){
   updateBoard(entered,item.route,item.dest,item.via||'');
 }
 
-document.querySelectorAll('[data-key]').forEach(btn=>
-  btn.addEventListener('click',()=>{
-    if(entered.length<3){
-      entered+=btn.dataset.key;
+document.querySelectorAll('[data-key]').forEach(btn =>
+  btn.addEventListener('click', () => {
+
+    playButtonSound();
+
+    if(entered.length < 3){
+      entered += btn.dataset.key;
       showCode();
     }
+
   })
 );
 
