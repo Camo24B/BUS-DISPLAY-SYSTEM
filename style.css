@@ -773,3 +773,82 @@ font-size: 16px;
 .code-screen > div {
 font-size: 24px;
 }
+
+
+/* =========================
+   UPDATE LIST
+========================= */
+
+.updates {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #2a353e;
+}
+
+.updates-head {
+  margin-bottom: 10px;
+}
+
+.updates-head h3 {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+.update-list {
+  max-height: 220px;
+  overflow-y: auto;
+
+  background: #080d11;
+  border: 1px solid #33414b;
+  border-radius: 9px;
+  padding: 5px 12px;
+}
+
+/* Individual note */
+
+.update-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 10px 2px;
+  border-bottom: 1px solid #29343d;
+}
+
+.update-note:last-child {
+  border-bottom: 0;
+}
+
+.update-note span {
+  flex: 0 0 24px;
+
+  color: #f5b12d;
+  font: 500 10px 'DM Mono', monospace;
+}
+
+.update-note p {
+  margin: 0;
+
+  color: #b9c4cc;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* Scrollbar */
+
+.update-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.update-list::-webkit-scrollbar-track {
+  background: #0b1015;
+}
+
+.update-list::-webkit-scrollbar-thumb {
+  background: #34414b;
+  border-radius: 10px;
+}
+
+.update-list::-webkit-scrollbar-thumb:hover {
+  background: #53636e;
+}
