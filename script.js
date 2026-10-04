@@ -1,165 +1,384 @@
 const $ = id => document.getElementById(id);
 
-
-// ===============================
-// BUTTON SOUND
-// ===============================
-
+/* BUTTON SOUND */
 const buttonSound = new Audio('musheran-beep-313342.mp3');
-
 buttonSound.volume = 0.5;
 
-function playButtonSound(){
+function playButtonSound() {
   buttonSound.currentTime = 0;
   buttonSound.play().catch(() => {});
 }
 
 
-// ===============================
-// DEFAULT DESTINATION CODES
-// ===============================
-
+/* DEFAULT DESTINATION CODES */
 const defaults = {
-
-  '001': {
-    route: '',
-    dest: 'Not in Service',
-    via: ''
-  },
-
-  '501': {
-    route: '',
-    dest: 'Driver Training',
-    via: ''
-  },
-
-  '503': {
-    route: '',
-    dest: 'Tram Replacement',
-    via: ''
-  },
-
-  '504': {
-    route: '',
-    dest: 'Rail Replacement',
-    via: ''
-  },
-
-  '510': {
-    route: '',
-    dest: 'Football P&R',
-    via: ''
-  },
-
-  '511': {
-    route: '',
-    dest: 'Shuttle Bus',
-    via: ''
-  },
-
-  '512': {
-    route: '',
-    dest: 'Goose Fair',
-    via: ''
-  },
-
-  '521': {
-    route: '',
-    dest: 'TRAVEL SAFE',
-    via: ''
-  },
-
-  '522': {
-    route: '',
-    dest: 'Safety Zone',
-    via: ''
-  },
-
-  '523': {
-    route: '',
-    dest: 'Police Operation',
-    via: ''
-  }
-
+  '001': { route:'', dest:'Not in Service', via:'' },
+  '501': { route:'', dest:'Driver Training', via:'' },
+  '503': { route:'', dest:'Tram Replacement', via:'' },
+  '504': { route:'', dest:'Rail Replacement', via:'' },
+  '510': { route:'', dest:'Football P&R', via:'' },
+  '511': { route:'', dest:'Shuttle Bus', via:'' },
+  '512': { route:'', dest:'Goose Fair', via:'' },
+  '521': { route:'', dest:'TRAVEL SAFE', via:'' },
+  '522': { route:'', dest:'Safety Zone', via:'' },
+  '523': { route:'', dest:'Police Operation', via:'' }
 };
 
 
-// ===============================
-// LOAD CUSTOM DESTINATIONS
-// ===============================
-
+/* CUSTOM DESTINATIONS */
 let custom = {};
 
 try {
-
-  custom = JSON.parse(
-    localStorage.getItem('busDestCodes') || '{}'
-  );
-
-} catch(e) {
-
+  custom = JSON.parse(localStorage.getItem('busDestCodes') || '{}');
+} catch (e) {
   custom = {};
-
 }
-
 
 let entered = '';
 
 
-// ===============================
-// DISPLAY ENTERED CODE
-// ===============================
+/* DISPLAY TIMER */
+let displayTimer = null;
+let currentPage = 1;
 
-function showCode(){
 
-  $('codeValue').textContent =
-    entered.padEnd(3, '-');
-
+/* SHOW CODE */
+function showCode() {
+  $('codeValue').textContent = entered.padEnd(3, '-');
 }
 
 
-// ===============================
-// UPDATE DESTINATION BOARD
-// ===============================
+/* SET UP SCROLLING */
+function setupScrolling(element) {
+  if (!element) return null;
 
-function updateBoard(code, route, dest, via = ''){
+  element.classList.remove('scrolling');
 
-  const text =
-    (dest + (via ? ' VIA ' + via : ''))
-    .toUpperCase();
+  element.style.removeProperty('--scroll-distance');
+  element.style.removeProperty('--scroll-time');
+
+  element.style.transform = 'translateX(0)';
+
+  const availableWidth = element.clientWidth;
+  const textWidth = element.scrollWidth;
+
+  if (textWidth <= availableWidth + 2) {
+    return null;
+  }
+
+  const distance = textWidth - availableWidth;
+  const scrollDistance = distance + 25;
+
+  const scrollTime = Math.max(
+    7,
+    Math.min(18, scrollDistance / 25)
+  );
+
+  element.style.setProperty(
+    '--scroll-distance',
+    scrollDistance + 'px'
+  );
+
+  element.style.setProperty(
+    '--scroll-time',
+    scrollTime + 's'
+  );
+
+  element.classList.add('scrolling');
+
+  return scrollTime * 1000;
+}
+
+
+/* CHECK CURRENT PAGE FOR SCROLLING */
+function getScrollTime() {
+  const elements = [
+    $('fDest'),
+    $('sDest'),
+    $('rDest')
+  ];
+
+  let longestTime = 0;
+
+  elements.forEach(element => {
+    if (!element) return;
+
+    const availableWidth = element.clientWidth;
+    const textWidth = element.scrollWidth;
+
+    if (textWidth > availableWidth + 2) {
+      const distance = textWidth - availableWidth;
+      const scrollDistance = distance + 25;
+
+      const scrollTime = Math.max(
+        7,
+        Math.min(18, scrollDistance / 25)
+      );
+
+      longestTime = Math.max(
+        longestTime,
+        scrollTime * 1000
+      );
+    }
+  });
+
+  return longestTime;
+}
+
+
+/* SET UP ALL DISPLAYS */
+function setupAllScrolling() {
+  setupScrolling($('fDest'));
+  setupScrolling($('sDest'));
+  setupScrolling($('rDest'));
+}
+
+
+/* FADE TO NEXT PAGE */
+function fadeToNextPage(viaText) {
+
+  if (displayTimer) {
+    clearTimeout(displayTimer);
+    displayTimer = null;
+  }
+
+  const destinations = [
+    $('fDest'),
+    $('sDest'),
+    $('rDest')
+  ];
+
+  /* Start fade out */
+  destinations.forEach(element => {
+    if (!element) return;
+
+    element.classList.remove('page-fade');
+
+    /* Restart animation */
+    void element.offsetWidth;
+
+    element.classList.add('page-fade');
+  });
+
+
+  /*
+    Wait until the middle of the fade,
+    then change the actual page text.
+  */
+  setTimeout(() => {
+
+    currentPage = currentPage === 1 ? 2 : 1;
+
+    const routeText = window.currentRouteText || '';
+    const destText = window.currentDestText || '';
+
+    ['f', 's', 'r'].forEach(p => {
+
+      const routeElement = $(p + 'Route');
+      const destElement = $(p + 'Dest');
+
+      /* Stop any previous scrolling */
+      destElement.classList.remove('scrolling');
+
+      destElement.style.removeProperty('--scroll-distance');
+      destElement.style.removeProperty('--scroll-time');
+
+      destElement.style.transform = 'translateX(0)';
+
+
+      /* PAGE 1 */
+      if (currentPage === 1) {
+
+        routeElement.textContent = routeText;
+        destElement.textContent = destText;
+
+      }
+
+      /* PAGE 2 */
+      else {
+
+        routeElement.textContent = '';
+
+        destElement.textContent =
+          viaText ? 'VIA ' + viaText : '';
+      }
+    });
+
+    /*
+      Wait for the fade to finish before
+      starting the scrolling.
+    */
+    setTimeout(() => {
+
+      destinations.forEach(element => {
+        if (!element) return;
+
+        element.classList.remove('page-fade');
+      });
+
+      setupAllScrolling();
+
+      scheduleNextPage(viaText);
+
+    }, 400);
+
+  }, 350);
+}
+
+
+/* START NEXT PAGE TIMER */
+function scheduleNextPage(viaText) {
+
+  if (displayTimer) {
+    clearTimeout(displayTimer);
+    displayTimer = null;
+  }
+
+  /*
+    If there is no VIA text, stay on Page 1.
+  */
+  if (!viaText) {
+    requestAnimationFrame(() => {
+      setupAllScrolling();
+    });
+
+    return;
+  }
+
+
+  requestAnimationFrame(() => {
+
+    setupAllScrolling();
+
+    const scrollTime = getScrollTime();
+
+    /*
+      If scrolling is needed:
+      wait until scrolling finishes.
+
+      If no scrolling:
+      show each page for 4 seconds.
+    */
+    const waitTime =
+      scrollTime > 0
+        ? scrollTime + 500
+        : 4000;
+
+
+    displayTimer = setTimeout(() => {
+
+      fadeToNextPage(viaText);
+
+    }, waitTime);
+
+  });
+}
+
+
+/* SHOW CURRENT PAGE */
+function showCurrentPage(viaText) {
+
+  const routeText =
+    window.currentRouteText || '';
+
+  const destText =
+    window.currentDestText || '';
+
+
+  ['f', 's', 'r'].forEach(p => {
+
+    const routeElement = $(p + 'Route');
+    const destElement = $(p + 'Dest');
+
+
+    if (currentPage === 1) {
+
+      routeElement.textContent =
+        routeText;
+
+      destElement.textContent =
+        destText;
+
+    }
+
+    else {
+
+      routeElement.textContent = '';
+
+      destElement.textContent =
+        viaText ? 'VIA ' + viaText : '';
+
+    }
+
+  });
+
+
+  scheduleNextPage(viaText);
+}
+
+
+/* UPDATE BUS DISPLAY */
+function updateBoard(code, route, dest, via = '') {
+
+  if (displayTimer) {
+    clearTimeout(displayTimer);
+    displayTimer = null;
+  }
+
+
+  currentPage = 1;
+
+
+  const routeText =
+    String(route || '').toUpperCase();
+
+  const destText =
+    String(dest || '').toUpperCase();
+
+  const viaText =
+    String(via || '').toUpperCase();
+
+
+  window.currentRouteText =
+    routeText;
+
+  window.currentDestText =
+    destText;
+
 
   ['f', 's', 'r'].forEach(p => {
 
     $(p + 'Route').textContent =
-      route.toUpperCase();
+      routeText;
 
     $(p + 'Dest').textContent =
-      text;
+      destText;
 
   });
+
+
+  scheduleNextPage(viaText);
+
 
   $('activeCode').textContent =
     'CODE ' + code;
 
+
   $('status').textContent =
     'Destination loaded · ' +
-    route + ' ' +
-    dest;
+    route + ' ' + dest;
+
 
   $('feedback').textContent =
     'Loaded code ' + code +
     '. Enter another code to change destination.';
-
 }
 
 
-// ===============================
-// ENTER DESTINATION CODE
-// ===============================
+/* ENTER CODE */
+function enterCode() {
 
-function enterCode(){
-
-  if(entered.length !== 3){
+  if (entered.length !== 3) {
 
     $('feedback').textContent =
       'Enter a 3-digit destination code first.';
@@ -167,11 +386,13 @@ function enterCode(){
     return;
   }
 
+
   const item =
     custom[entered] ||
     defaults[entered];
 
-  if(!item){
+
+  if (!item) {
 
     $('feedback').textContent =
       'Code not found. Add it under “Manage destination codes”.';
@@ -179,32 +400,28 @@ function enterCode(){
     return;
   }
 
+
   updateBoard(
     entered,
     item.route,
     item.dest,
     item.via || ''
   );
-
 }
 
 
-// ===============================
-// NUMBER KEYPAD
-// ===============================
-
+/* NUMBER KEYPAD */
 document.querySelectorAll('[data-key]').forEach(btn => {
 
   btn.addEventListener('click', () => {
 
     playButtonSound();
 
-    if(entered.length < 3){
+    if (entered.length < 3) {
 
       entered += btn.dataset.key;
 
       showCode();
-
     }
 
   });
@@ -212,28 +429,31 @@ document.querySelectorAll('[data-key]').forEach(btn => {
 });
 
 
-// ===============================
-// CLEAR BUTTON
-// ===============================
-
+/* CLEAR */
 $('clear').addEventListener('click', () => {
 
   playButtonSound();
 
   entered = '';
 
+
+  if (displayTimer) {
+
+    clearTimeout(displayTimer);
+
+    displayTimer = null;
+  }
+
+
   showCode();
+
 
   $('feedback').textContent =
     'Code cleared.';
-
 });
 
 
-// ===============================
-// BACKSPACE BUTTON
-// ===============================
-
+/* BACKSPACE */
 $('back').addEventListener('click', () => {
 
   playButtonSound();
@@ -246,10 +466,7 @@ $('back').addEventListener('click', () => {
 });
 
 
-// ===============================
-// ENTER BUTTON
-// ===============================
-
+/* ENTER BUTTON */
 $('enter').addEventListener('click', () => {
 
   playButtonSound();
@@ -259,13 +476,11 @@ $('enter').addEventListener('click', () => {
 });
 
 
-// ===============================
-// COMPUTER KEYBOARD
-// ===============================
-
+/* COMPUTER KEYBOARD */
 document.addEventListener('keydown', e => {
 
-  if(/^\d$/.test(e.key) && entered.length < 3){
+  if (/^\d$/.test(e.key) &&
+      entered.length < 3) {
 
     entered += e.key;
 
@@ -273,7 +488,7 @@ document.addEventListener('keydown', e => {
 
   }
 
-  else if(e.key === 'Backspace'){
+  else if (e.key === 'Backspace') {
 
     entered =
       entered.slice(0, -1);
@@ -282,7 +497,7 @@ document.addEventListener('keydown', e => {
 
   }
 
-  else if(e.key === 'Enter'){
+  else if (e.key === 'Enter') {
 
     enterCode();
 
@@ -291,13 +506,11 @@ document.addEventListener('keydown', e => {
 });
 
 
-// ===============================
-// DISPLAY DESTINATION LIST
-// ===============================
+/* RENDER DESTINATION LIST */
+function renderCodes() {
 
-function renderCodes(){
-
-  const list = $('codeList');
+  const list =
+    $('codeList');
 
   list.innerHTML = '';
 
@@ -320,8 +533,6 @@ function renderCodes(){
       'code-item';
 
 
-    // Destination name
-
     const name =
       document.createElement('span');
 
@@ -338,14 +549,8 @@ function renderCodes(){
     row.appendChild(name);
 
 
-    // ===========================
-    // CUSTOM DESTINATION BUTTONS
-    // ===========================
-
-    if(custom[code]){
-
-
-      // EDIT BUTTON
+    /* CUSTOM CODE CONTROLS */
+    if (custom[code]) {
 
       const edit =
         document.createElement('button');
@@ -358,8 +563,6 @@ function renderCodes(){
 
         playButtonSound();
 
-
-        // Load destination into form
 
         $('newCode').value =
           code;
@@ -380,8 +583,6 @@ function renderCodes(){
           '. Change the details and press SAVE.';
 
 
-        // Scroll to form
-
         $('newCode').scrollIntoView({
           behavior: 'smooth',
           block: 'center'
@@ -393,10 +594,7 @@ function renderCodes(){
       row.appendChild(edit);
 
 
-      // =========================
-      // DELETE BUTTON
-      // =========================
-
+      /* DELETE */
       const del =
         document.createElement('button');
 
@@ -423,14 +621,12 @@ function renderCodes(){
 
         $('feedback').textContent =
           'Deleted destination code ' +
-          code +
-          '.';
+          code + '.';
 
       });
 
 
       row.appendChild(del);
-
     }
 
 
@@ -441,10 +637,7 @@ function renderCodes(){
 }
 
 
-// ===============================
-// SAVE / ADD DESTINATION
-// ===============================
-
+/* SAVE CUSTOM DESTINATION */
 $('save').addEventListener('click', () => {
 
   playButtonSound();
@@ -463,23 +656,18 @@ $('save').addEventListener('click', () => {
     $('newVia').value.trim();
 
 
-  // Validate
-
-  if(
+  if (
     !/^\d{3}$/.test(code) ||
     !route ||
     !dest
-  ){
+  ) {
 
     $('feedback').textContent =
       'Enter a 3-digit code, route number and destination.';
 
     return;
-
   }
 
-
-  // Save custom destination
 
   custom[code] = {
     route,
@@ -488,15 +676,11 @@ $('save').addEventListener('click', () => {
   };
 
 
-  // Save to browser storage
-
   localStorage.setItem(
     'busDestCodes',
     JSON.stringify(custom)
   );
 
-
-  // Load destination
 
   entered = code;
 
@@ -511,28 +695,37 @@ $('save').addEventListener('click', () => {
   );
 
 
-  // Refresh list
-
   renderCodes();
 
 
-  // Clear form
-
   $('newCode').value = '';
-
   $('newRoute').value = '';
-
   $('newDest').value = '';
-
   $('newVia').value = '';
 
 });
 
 
-// ===============================
-// START
-// ===============================
+/* RESIZE */
+window.addEventListener('resize', () => {
 
+  if (displayTimer) {
+
+    clearTimeout(displayTimer);
+
+    displayTimer = null;
+  }
+
+
+  requestAnimationFrame(() => {
+
+    setupAllScrolling();
+
+  });
+
+});
+
+
+/* START */
 showCode();
-
 renderCodes();

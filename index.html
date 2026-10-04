@@ -1,66 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bus Destination Controller</title><link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Bus Destination Controller</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header><div class="logo">N</div><div><small>BUS DISPLAY SYSTEM</small><h1>Destination Controller</h1></div><span class="pill">SIMULATOR</span></header>
+
+<header>
+  <div class="logo">N</div>
+
+  <div>
+    <small>BUS DISPLAY SYSTEM</small>
+    <h1>Destination Controller</h1>
+  </div>
+
+  <span class="pill">SIMULATOR</span>
+</header>
+
+
 <main>
-<section class="preview">
-  <div class="head"><div><small>LIVE VEHICLE DISPLAY</small><h2>Destination boards</h2></div><span id="activeCode">CODE —</span></div>
-  <div class="display-wrap">
-    <div class="display-title">FRONT DISPLAY</div>
-    <div class="led front"><b id="fRoute">--</b><span id="fDest">ENTER A CODE</span></div>
-    <div class="display-title">SIDE DISPLAY</div>
-    <div class="led side"><b id="sRoute">--</b><span id="sDest">ENTER A CODE</span></div>
-    <div class="display-title">REAR DISPLAY</div>
-    <div class="led rear"><b id="rRoute">--</b><span id="rDest">ENTER A CODE</span></div>
-  </div>
-  <div class="state"><i></i><span id="status">Waiting for route code</span></div>
-</section>
-<aside class="controller">
-  <div class="head"><div><small>DRIVER'S CAB</small><h2>Route controller</h2></div><span class="key-icon">▦</span></div>
-  <p class="intro">Enter a destination code using the keypad, then press <b>ENTER</b>.</p>
-  <div class="code-screen"><small>DESTINATION CODE</small><div><span id="codeValue">----</span><span class="cursor"></span></div></div>
-  <div class="keypad" aria-label="Numeric keypad">
-    <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
-    <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
-    <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
-    <button class="utility" id="clear">CLEAR</button><button data-key="0">0</button><button class="utility" id="back">⌫</button>
-  </div>
-  <button id="enter" class="enter">ENTER DESTINATION ↵</button>
-  <p id="feedback" class="feedback" aria-live="polite">Try code 001, 501, 503, 504, 510, 511, 512, 521, 522 or 523.</p>
-  <details>
-    <summary>Manage destination codes or View Pre-Program Codes</summary>
-    <p class="manage-note">Create your own code-to-destination shortcuts. Custom entries are saved in this browser.</p>
-    <label>Code <input id="newCode" maxlength="4" inputmode="numeric" placeholder="e.g. 551"></label>
-    <label>Route number <input id="newRoute" maxlength="5" placeholder="e.g. 24"></label>
-    <label>Destination <input id="newDest" maxlength="32" placeholder="e.g. City Hospital"></label>
-    <label>Via (optional) <input id="newVia" maxlength="32" placeholder="e.g. Mapperley"></label>
-    <button id="save" class="save">SAVE DESTINATION</button>
-    <div id="codeList" class="code-list"></div>
-  </details>
-</aside>
-  <section class="updates">
-  <div class="updates-head">
-    <div>
-      <small>DEVELOPMENT NOTES</small>
-      <h3>Update List</h3>
-    </div>
-  </div>
 
+  <!-- =========================
+       DESTINATION DISPLAY
+  ========================== -->
 
-    <div class="update-note">
-      <span>10/04/2026</span>
-      <p>Started Beta testing.</p>
+  <section class="preview">
+
+    <div class="head">
+      <div>
+        <small>DESTINATION DISPLAY</small>
+        <h2>Bus Display Preview</h2>
+      </div>
+
+      <span id="activeCode">CODE ---</span>
     </div>
 
 
-    <!-- Add more notes here -->
-  </div>
-</section>
+    <div class="display-wrap">
+
+      <!-- FRONT -->
+
+      <div class="display-title">FRONT DISPLAY</div>
+
+      <div class="led">
+
+        <b id="fRoute"></b>
+
+        <span id="fDest"></span>
+
+      </div>
+
+
+      <!-- SIDE -->
+
+      <div class="display-title">SIDE DISPLAY</div>
+
+      <div class="led side">
+
+        <b id="sRoute"></b>
+
+        <span id="sDest"></span>
+
+      </div>
+
+
+      <!-- REAR -->
+
+      <div class="display-title">REAR DISPLAY</div>
+
+      <div class="led rear">
+
+        <b id="rRoute"></b>
+
+        <span id="rDest"></span>
+
+      </div>
+
+
+      <div class="state">
+
+        <i></i>
+
+        <span id="status">
+          Waiting for destination code
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       CONTROLLER
+  ========================== -->
+
+  <section class="controller">
+
+    <div class="head">
+
+      <div>
+        <small>DESTINATION CONTROLLER</small>
+        <h2>Enter Code</h2>
+      </div>
+
+    </div>
+
+
+    <p class="intro">
+      Enter a 3-digit destination code using the keypad.
+    </p>
+
+
+    <!-- CODE SCREEN -->
+
+    <div class="code-screen">
+
+      <small>DESTINATION CODE</small>
+
+      <div>
+
+        <span id="codeValue">---</span>
+
+        <span class="cursor"></span>
+
+      </div>
+
+    </div>
+
+
+    <!-- KEYPAD -->
+
+    <div class="keypad">
+
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+
+      <button data-key="4">4</button>
+      <button data-key="5">5</button>
+      <button data-key="6">6</button>
+
+      <button data-key="7">7</button>
+      <button data-key="8">8</button>
+      <button data-key="9">9</button>
+
+      <button id="clear" class="utility">CLEAR</button>
+      <button data-key="0">0</button>
+      <button id="back" class="utility">⌫</button>
+
+    </div>
+
+
+    <button id="enter" class="enter">
+      SET DESTINATION
+    </button>
+
+
+    <div id="feedback" class="feedback">
+      Enter a 3-digit destination code.
+    </div>
+
+
+    <!-- =========================
+         MANAGE DESTINATIONS
+    ========================== -->
+
+    <details>
+
+      <summary>
+        Manage destination codes
+      </summary>
+
+      <p class="manage-note">
+        Add your own destination codes. Custom codes are saved
+        automatically in your browser.
+      </p>
+
+
+      <label for="newCode">
+        CODE
+      </label>
+
+      <input
+        id="newCode"
+        type="text"
+        inputmode="numeric"
+        maxlength="3"
+        placeholder="600"
+      >
+
+
+      <label for="newRoute">
+        ROUTE
+      </label>
+
+      <input
+        id="newRoute"
+        type="text"
+        placeholder="45"
+      >
+
+
+      <label for="newDest">
+        DESTINATION
+      </label>
+
+      <input
+        id="newDest"
+        type="text"
+        placeholder="Rivendell"
+      >
+
+
+      <label for="newVia">
+        VIA
+      </label>
+
+      <input
+        id="newVia"
+        type="text"
+        placeholder="Vic Centre"
+      >
+
+
+      <button id="save" class="save">
+        SAVE DESTINATION
+      </button>
+
+
+      <!-- DESTINATION LIST -->
+
+      <div class="updates">
+
+        <div class="updates-head">
+
+          <small>DESTINATION CODES</small>
+
+          <h3>Saved Codes</h3>
+
+        </div>
+
+
+        <div
+          id="codeList"
+          class="code-list"
+        ></div>
+
+      </div>
+
+    </details>
+
+  </section>
+
 </main>
-<footer>Independent fan-made simulator · Not affiliated with any bus operator</footer>
+
+
+<footer>
+  Bus Destination Controller · Simulator
+</footer>
+
+
 <script src="script.js"></script>
-</body></html>
+
+</body>
+</html>
