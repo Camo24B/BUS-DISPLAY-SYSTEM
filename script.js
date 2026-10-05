@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 
 /* =========================================================
    BUTTON SOUND
-========================================================= */
+   ========================================================= */
 
 const buttonSound = new Audio('musheran-beep-313342.mp3');
 buttonSound.volume = 0.5;
@@ -16,7 +16,7 @@ function playButtonSound() {
 
 /* =========================================================
    DEFAULT DESTINATION CODES
-========================================================= */
+   ========================================================= */
 
 const defaults = {
 
@@ -95,16 +95,15 @@ const defaults = {
 
 /* =========================================================
    CUSTOM DESTINATIONS
-========================================================= */
+   ========================================================= */
 
 let custom = {};
 
 try {
 
-  custom =
-    JSON.parse(
-      localStorage.getItem('busDestCodes') || '{}'
-    );
+  custom = JSON.parse(
+    localStorage.getItem('busDestCodes') || '{}'
+  );
 
 } catch (e) {
 
@@ -118,7 +117,7 @@ let entered = '';
 
 /* =========================================================
    DISPLAY TIMER
-========================================================= */
+   ========================================================= */
 
 let displayTimer = null;
 
@@ -134,7 +133,7 @@ let currentPage = 1;
 
 /* =========================================================
    CURRENT DISPLAY DATA
-========================================================= */
+   ========================================================= */
 
 window.currentRouteText = '';
 window.currentDestText = '';
@@ -144,7 +143,7 @@ window.currentPage3Text = '';
 
 /* =========================================================
    SHOW CODE
-========================================================= */
+   ========================================================= */
 
 function showCode() {
 
@@ -155,191 +154,12 @@ function showCode() {
 
 
 /* =========================================================
-   SET UP SCROLLING
-========================================================= */
-
-function setupScrolling(element) {
-
-  if (!element) return null;
-
-
-  element.classList.remove(
-    'scrolling'
-  );
-
-
-  element.style.removeProperty(
-    '--scroll-distance'
-  );
-
-  element.style.removeProperty(
-    '--scroll-time'
-  );
-
-
-  element.style.transform =
-    'translateX(0)';
-
-
-  const availableWidth =
-    element.clientWidth;
-
-  const textWidth =
-    element.scrollWidth;
-
-
-  if (
-    textWidth <=
-    availableWidth + 2
-  ) {
-
-    return null;
-
-  }
-
-
-  const distance =
-    textWidth -
-    availableWidth;
-
-
-  const scrollDistance =
-    distance + 25;
-
-
-  const scrollTime =
-    Math.max(
-      7,
-      Math.min(
-        18,
-        scrollDistance / 25
-      )
-    );
-
-
-  element.style.setProperty(
-    '--scroll-distance',
-    scrollDistance + 'px'
-  );
-
-
-  element.style.setProperty(
-    '--scroll-time',
-    scrollTime + 's'
-  );
-
-
-  element.classList.add(
-    'scrolling'
-  );
-
-
-  return scrollTime * 1000;
-
-}
-
-
-/* =========================================================
-   CHECK CURRENT PAGE FOR SCROLLING
-========================================================= */
-
-function getScrollTime() {
-
-  const elements = [
-
-    $('fDest'),
-    $('sDest'),
-    $('rDest')
-
-  ];
-
-
-  let longestTime = 0;
-
-
-  elements.forEach(element => {
-
-    if (!element) return;
-
-
-    const availableWidth =
-      element.clientWidth;
-
-
-    const textWidth =
-      element.scrollWidth;
-
-
-    if (
-      textWidth >
-      availableWidth + 2
-    ) {
-
-      const distance =
-        textWidth -
-        availableWidth;
-
-
-      const scrollDistance =
-        distance + 25;
-
-
-      const scrollTime =
-        Math.max(
-          7,
-          Math.min(
-            18,
-            scrollDistance / 25
-          )
-        );
-
-
-      longestTime =
-        Math.max(
-          longestTime,
-          scrollTime * 1000
-        );
-
-    }
-
-  });
-
-
-  return longestTime;
-
-}
-
-
-/* =========================================================
-   SET UP ALL DISPLAYS
-========================================================= */
-
-function setupAllScrolling() {
-
-  setupScrolling(
-    $('fDest')
-  );
-
-  setupScrolling(
-    $('sDest')
-  );
-
-  setupScrolling(
-    $('rDest')
-  );
-
-}
-
-
-/* =========================================================
    GET NEXT AVAILABLE PAGE
-========================================================= */
+   ========================================================= */
 
 function getNextPage() {
 
-  /*
-     Page 1 → Page 2
-  */
+  /* PAGE 1 → PAGE 2 */
 
   if (
     currentPage === 1 &&
@@ -351,10 +171,7 @@ function getNextPage() {
   }
 
 
-  /*
-     Page 1 → Page 3
-     if there is no VIA.
-  */
+  /* PAGE 1 → PAGE 3 */
 
   if (
     currentPage === 1 &&
@@ -367,9 +184,7 @@ function getNextPage() {
   }
 
 
-  /*
-     Page 2 → Page 3
-  */
+  /* PAGE 2 → PAGE 3 */
 
   if (
     currentPage === 2 &&
@@ -381,10 +196,7 @@ function getNextPage() {
   }
 
 
-  /*
-     Page 2 → Page 1
-     if there is no Page 3.
-  */
+  /* PAGE 2 → PAGE 1 */
 
   if (
     currentPage === 2 &&
@@ -396,9 +208,7 @@ function getNextPage() {
   }
 
 
-  /*
-     Page 3 → Page 1
-  */
+  /* PAGE 3 → PAGE 1 */
 
   if (currentPage === 3) {
 
@@ -414,7 +224,7 @@ function getNextPage() {
 
 /* =========================================================
    SHOW PAGE CONTENT
-========================================================= */
+   ========================================================= */
 
 function displayPage(page) {
 
@@ -445,9 +255,7 @@ function displayPage(page) {
     }
 
 
-    /*
-       PAGE 1
-    */
+    /* PAGE 1 */
 
     if (page === 1) {
 
@@ -460,9 +268,7 @@ function displayPage(page) {
     }
 
 
-    /*
-       PAGE 2
-    */
+    /* PAGE 2 */
 
     else if (page === 2) {
 
@@ -475,9 +281,7 @@ function displayPage(page) {
     }
 
 
-    /*
-       PAGE 3
-    */
+    /* PAGE 3 */
 
     else if (page === 3) {
 
@@ -496,7 +300,7 @@ function displayPage(page) {
 
 /* =========================================================
    FADE TO NEXT PAGE
-========================================================= */
+   ========================================================= */
 
 function fadeToNextPage() {
 
@@ -518,9 +322,7 @@ function fadeToNextPage() {
   ];
 
 
-  /*
-     START FADE
-  */
+  /* START FADE */
 
   destinations.forEach(element => {
 
@@ -532,9 +334,7 @@ function fadeToNextPage() {
     );
 
 
-    /*
-       Restart animation
-    */
+    /* Restart animation */
 
     void element.offsetWidth;
 
@@ -546,10 +346,7 @@ function fadeToNextPage() {
   });
 
 
-  /*
-     CHANGE PAGE IN THE MIDDLE
-     OF THE FADE
-  */
+  /* CHANGE PAGE */
 
   setTimeout(() => {
 
@@ -562,9 +359,7 @@ function fadeToNextPage() {
     );
 
 
-    /*
-       WAIT FOR FADE TO FINISH
-    */
+    /* WAIT FOR FADE */
 
     setTimeout(() => {
 
@@ -572,15 +367,11 @@ function fadeToNextPage() {
 
         if (!element) return;
 
-
         element.classList.remove(
           'page-fade'
         );
 
       });
-
-
-      setupAllScrolling();
 
 
       scheduleNextPage();
@@ -594,7 +385,7 @@ function fadeToNextPage() {
 
 /* =========================================================
    START NEXT PAGE TIMER
-========================================================= */
+   ========================================================= */
 
 function scheduleNextPage() {
 
@@ -608,63 +399,23 @@ function scheduleNextPage() {
 
 
   /*
-     If there is no VIA and no Page 3,
-     stay on Page 1.
+     NO TEXT SCROLLING.
+
+     Every page stays visible for 4 seconds.
   */
 
-  if (
-    !window.currentViaText &&
-    !window.currentPage3Text
-  ) {
+  displayTimer = setTimeout(() => {
 
-    requestAnimationFrame(() => {
+    fadeToNextPage();
 
-      setupAllScrolling();
-
-    });
-
-    return;
-
-  }
-
-
-  requestAnimationFrame(() => {
-
-    setupAllScrolling();
-
-
-    const scrollTime =
-      getScrollTime();
-
-
-    /*
-       Give scrolling time to finish.
-
-       Otherwise display page
-       for 4 seconds.
-    */
-
-    const waitTime =
-      scrollTime > 0
-        ? scrollTime + 500
-        : 4000;
-
-
-    displayTimer =
-      setTimeout(() => {
-
-        fadeToNextPage();
-
-      }, waitTime);
-
-  });
+  }, 4000);
 
 }
 
 
 /* =========================================================
    SHOW CURRENT PAGE
-========================================================= */
+   ========================================================= */
 
 function showCurrentPage() {
 
@@ -679,7 +430,7 @@ function showCurrentPage() {
 
 /* =========================================================
    UPDATE BUS DISPLAY
-========================================================= */
+   ========================================================= */
 
 function updateBoard(
   code,
@@ -698,16 +449,12 @@ function updateBoard(
   }
 
 
-  /*
-     ALWAYS START ON PAGE 1
-  */
+  /* ALWAYS START ON PAGE 1 */
 
   currentPage = 1;
 
 
-  /*
-     ROUTE OPTIONAL
-  */
+  /* ROUTE OPTIONAL */
 
   const routeText =
     String(route || '')
@@ -715,9 +462,7 @@ function updateBoard(
       .toUpperCase();
 
 
-  /*
-     DESTINATION
-  */
+  /* DESTINATION */
 
   const destText =
     String(dest || '')
@@ -725,14 +470,7 @@ function updateBoard(
       .toUpperCase();
 
 
-  /*
-     VIA OPTIONAL
-
-     User types the full text,
-     e.g.
-
-     VIA MAPPERLEY
-  */
+  /* VIA OPTIONAL */
 
   const viaText =
     String(via || '')
@@ -740,9 +478,7 @@ function updateBoard(
       .toUpperCase();
 
 
-  /*
-     PAGE 3 OPTIONAL
-  */
+  /* PAGE 3 OPTIONAL */
 
   const page3Text =
     String(page3 || '')
@@ -750,9 +486,7 @@ function updateBoard(
       .toUpperCase();
 
 
-  /*
-     STORE CURRENT DATA
-  */
+  /* STORE CURRENT DATA */
 
   window.currentRouteText =
     routeText;
@@ -767,31 +501,23 @@ function updateBoard(
     page3Text;
 
 
-  /*
-     DISPLAY PAGE 1
-  */
+  /* DISPLAY PAGE 1 */
 
   displayPage(1);
 
 
-  /*
-     START PAGE TIMER
-  */
+  /* START TIMER */
 
   scheduleNextPage();
 
 
-  /*
-     ACTIVE CODE
-  */
+  /* ACTIVE CODE */
 
   $('activeCode').textContent =
     'CODE ' + code;
 
 
-  /*
-     STATUS
-  */
+  /* STATUS */
 
   $('status').textContent =
     'Destination loaded · ' +
@@ -803,9 +529,7 @@ function updateBoard(
     destText;
 
 
-  /*
-     FEEDBACK
-  */
+  /* FEEDBACK */
 
   $('feedback').textContent =
     'Loaded code ' +
@@ -814,10 +538,27 @@ function updateBoard(
 
 }
 
+/* =========================================================
+   SCROLL TO BUS DISPLAYS
+   ========================================================= */
+
+function scrollToDisplays() {
+
+  const display =
+    $('fDest');
+
+  if (!display) return;
+
+  display.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+}
 
 /* =========================================================
    ENTER CODE
-========================================================= */
+   ========================================================= */
 
 function enterCode() {
 
@@ -865,7 +606,7 @@ function enterCode() {
 
 /* =========================================================
    NUMBER KEYPAD
-========================================================= */
+   ========================================================= */
 
 document
   .querySelectorAll('[data-key]')
@@ -897,7 +638,7 @@ document
 
 /* =========================================================
    CLEAR
-========================================================= */
+   ========================================================= */
 
 $('clear').addEventListener(
   'click',
@@ -932,7 +673,7 @@ $('clear').addEventListener(
 
 /* =========================================================
    BACKSPACE
-========================================================= */
+   ========================================================= */
 
 $('back').addEventListener(
   'click',
@@ -953,14 +694,13 @@ $('back').addEventListener(
 
 /* =========================================================
    ENTER BUTTON
-========================================================= */
+   ========================================================= */
 
 $('enter').addEventListener(
   'click',
   () => {
 
     playButtonSound();
-
 
     enterCode();
 
@@ -970,16 +710,13 @@ $('enter').addEventListener(
 
 /* =========================================================
    COMPUTER KEYBOARD
-========================================================= */
+   ========================================================= */
 
 document.addEventListener(
   'keydown',
   e => {
 
-
-    /*
-       NUMBER
-    */
+    /* NUMBER */
 
     if (
       /^\d$/.test(e.key) &&
@@ -993,9 +730,7 @@ document.addEventListener(
     }
 
 
-    /*
-       BACKSPACE
-    */
+    /* BACKSPACE */
 
     else if (
       e.key === 'Backspace'
@@ -1009,9 +744,7 @@ document.addEventListener(
     }
 
 
-    /*
-       ENTER
-    */
+    /* ENTER */
 
     else if (
       e.key === 'Enter'
@@ -1027,7 +760,7 @@ document.addEventListener(
 
 /* =========================================================
    RENDER DESTINATION LIST
-========================================================= */
+   ========================================================= */
 
 function renderCodes() {
 
@@ -1055,7 +788,6 @@ function renderCodes() {
   .forEach(
     ([code, item]) => {
 
-
       const row =
         document.createElement(
           'div'
@@ -1072,17 +804,13 @@ function renderCodes() {
         );
 
 
-      /*
-         BUILD DISPLAY NAME
-      */
+      /* BUILD DISPLAY NAME */
 
       let displayName =
         code;
 
 
-      /*
-         ROUTE
-      */
+      /* ROUTE */
 
       if (item.route) {
 
@@ -1092,18 +820,14 @@ function renderCodes() {
       }
 
 
-      /*
-         DESTINATION
-      */
+      /* DESTINATION */
 
       displayName +=
         ' — ' +
         item.dest;
 
 
-      /*
-         VIA
-      */
+      /* VIA */
 
       if (item.via) {
 
@@ -1113,9 +837,7 @@ function renderCodes() {
       }
 
 
-      /*
-         PAGE 3
-      */
+      /* PAGE 3 */
 
       if (item.page3) {
 
@@ -1140,10 +862,7 @@ function renderCodes() {
 
       if (custom[code]) {
 
-
-        /*
-           EDIT
-        */
+        /* EDIT */
 
         const edit =
           document.createElement(
@@ -1187,12 +906,6 @@ function renderCodes() {
               code +
               '. Change the details and press SAVE.';
 
-
-            $('newCode').scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-
           }
         );
 
@@ -1202,9 +915,7 @@ function renderCodes() {
         );
 
 
-        /*
-           DELETE
-        */
+        /* DELETE */
 
         const del =
           document.createElement(
@@ -1263,7 +974,7 @@ function renderCodes() {
 
 /* =========================================================
    SAVE CUSTOM DESTINATION
-========================================================= */
+   ========================================================= */
 
 $('save').addEventListener(
   'click',
@@ -1272,9 +983,7 @@ $('save').addEventListener(
     playButtonSound();
 
 
-    /*
-       CODE
-    */
+    /* CODE */
 
     const code =
       $('newCode')
@@ -1282,9 +991,7 @@ $('save').addEventListener(
         .trim();
 
 
-    /*
-       ROUTE OPTIONAL
-    */
+    /* ROUTE OPTIONAL */
 
     const route =
       $('newRoute')
@@ -1292,9 +999,7 @@ $('save').addEventListener(
         .trim();
 
 
-    /*
-       DESTINATION REQUIRED
-    */
+    /* DESTINATION REQUIRED */
 
     const dest =
       $('newDest')
@@ -1302,9 +1007,7 @@ $('save').addEventListener(
         .trim();
 
 
-    /*
-       VIA OPTIONAL
-    */
+    /* VIA OPTIONAL */
 
     const via =
       $('newVia')
@@ -1312,9 +1015,7 @@ $('save').addEventListener(
         .trim();
 
 
-    /*
-       PAGE 3 OPTIONAL
-    */
+    /* PAGE 3 OPTIONAL */
 
     const page3 =
       $('newPage3')
@@ -1371,9 +1072,7 @@ $('save').addEventListener(
     );
 
 
-    /*
-       LOAD DESTINATION
-    */
+    /* LOAD DESTINATION */
 
     entered =
       code;
@@ -1397,16 +1096,12 @@ $('save').addEventListener(
     );
 
 
-    /*
-       UPDATE LIST
-    */
+    /* UPDATE LIST */
 
     renderCodes();
 
 
-    /*
-       CLEAR FORM
-    */
+    /* CLEAR FORM */
 
     $('newCode').value =
       '';
@@ -1429,30 +1124,15 @@ $('save').addEventListener(
 
 /* =========================================================
    RESIZE
-========================================================= */
+   ========================================================= */
 
 window.addEventListener(
   'resize',
   () => {
 
-    if (displayTimer) {
-
-      clearTimeout(
-        displayTimer
-      );
-
-      displayTimer = null;
-
-    }
-
-
-    requestAnimationFrame(
-      () => {
-
-        setupAllScrolling();
-
-      }
-    );
+    /*
+       No scrolling calculations needed.
+    */
 
   }
 );
@@ -1460,7 +1140,7 @@ window.addEventListener(
 
 /* =========================================================
    START
-========================================================= */
+   ========================================================= */
 
 showCode();
 
